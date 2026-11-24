@@ -1,0 +1,24 @@
+# Pixray Cloud Gaming - Terraform Variables
+# Copy this file to terraform.tfvars and customize
+
+# AWS Configuration
+aws_region = "us-east-1"
+environment = "production"
+project_name = "pixray-cloud"
+
+# Network Configuration
+vpc_cidr = "10.0.0.0/16"
+availability_zones = ["us-east-1a", "us-east-1b", "us-east-1c"]
+
+# Security Configuration
+# IMPORTANT: Restrict this in production!
+admin_ip_whitelist = ["YOUR_IP_ADDRESS/32"]
+allow_rdp_from_cidr = ["YOUR_IP_ADDRESS/32"]
+
+# Gaming Instance Configuration
+instance_type = "g4dn.xlarge" # NVIDIA T4 GPU
+# windows_ami_id = "ami-xxxxxxxxx" # Optional: Use pre-baked AMI with Sunshine
+
+# Warm Pool Configuration (optional for production)
+enable_warm_pool = false
+warm_pool_size = 2

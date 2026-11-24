@@ -1,0 +1,319 @@
+{
+  "info": {
+    "name": "Pixray Cloud Gaming API",
+    "description": "API collection for Pixray Cloud Gaming Platform with Sunshine/Moonlight integration",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "version": "1.0.0"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{supabase_access_token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "item": [
+    {
+      "name": "Sessions",
+      "item": [
+        {
+          "name": "Create Session",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"gameId\": \"{{game_id}}\",\n  \"preferredClient\": \"moonlight\",\n  \"instanceType\": \"g4dn.xlarge\",\n  \"enforceSteamOwnership\": false\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/sessions",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "sessions"]
+            },
+            "description": "Creates a new gaming session, launches EC2 instance, and returns pairing information"
+          },
+          "response": []
+        },
+        {
+          "name": "List Sessions",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/sessions?status=active&limit=20&offset=0",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "sessions"],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "active",
+                  "description": "Filter by status: pending, launching, running, pairing, active, stopped, failed"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                },
+                {
+                  "key": "offset",
+                  "value": "0"
+                }
+              ]
+            },
+            "description": "Lists user's gaming sessions with optional status filter"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Session Details",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/sessions/{{session_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "sessions", "{{session_id}}"]
+            },
+            "description": "Retrieves detailed information about a specific session"
+          },
+          "response": []
+        },
+        {
+          "name": "Terminate Session",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/sessions/{{session_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "sessions", "{{session_id}}"]
+            },
+            "description": "Terminates a gaming session and EC2 instance, refunds unused credits"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Payments",
+      "item": [
+        {
+          "name": "Get Credit Packages",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/payments/create-checkout-session",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "payments", "create-checkout-session"]
+            },
+            "description": "Returns available credit packages"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Checkout Session",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"packageIndex\": 0\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/payments/create-checkout-session",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "payments", "create-checkout-session"]
+            },
+            "description": "Creates a Stripe Checkout session for purchasing credits"
+          },
+          "response": []
+        },
+        {
+          "name": "Stripe Webhook",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "stripe-signature",
+                "value": "{{stripe_signature}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{{stripe_webhook_payload}}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/payments/webhook",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "payments", "webhook"]
+            },
+            "description": "Stripe webhook endpoint (called by Stripe, not directly)"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Ownership Verification",
+      "item": [
+        {
+          "name": "Verify Game Ownership",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/ownership/verify?gameId={{game_id}}&steamId={{steam_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "ownership", "verify"],
+              "query": [
+                {
+                  "key": "gameId",
+                  "value": "{{game_id}}",
+                  "description": "Game UUID"
+                },
+                {
+                  "key": "steamId",
+                  "value": "{{steam_id}}",
+                  "description": "Steam ID (optional if already linked)"
+                }
+              ]
+            },
+            "description": "Verifies game ownership via Steam API"
+          },
+          "response": []
+        },
+        {
+          "name": "Link Steam Account",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"steamId\": \"76561198123456789\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/ownership/verify",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "ownership", "verify"]
+            },
+            "description": "Links Steam account to user profile"
+          },
+          "response": []
+        },
+        {
+          "name": "Manual Verification",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"gameId\": \"{{game_id}}\",\n  \"manualVerification\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/ownership/verify",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "ownership", "verify"]
+            },
+            "description": "Manually verify game ownership (admin/testing)"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Host Agent",
+      "item": [
+        {
+          "name": "Host Agent Heartbeat",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"instanceId\": \"i-1234567890abcdef0\",\n  \"agentVersion\": \"1.0.0\",\n  \"agentSecret\": \"{{host_agent_secret}}\",\n  \"gpuModel\": \"NVIDIA Tesla T4\",\n  \"gpuDriverVersion\": \"531.79\",\n  \"gpuEncoder\": \"NVENC\",\n  \"cpuCores\": 4,\n  \"memoryMb\": 16384,\n  \"sunshineVersion\": \"0.23.1\",\n  \"sunshineHealthy\": true,\n  \"cpuUsagePercent\": 45.2,\n  \"memoryUsagePercent\": 62.5,\n  \"gpuUsagePercent\": 85.0,\n  \"gpuTempCelsius\": 72.0,\n  \"networkRxMbps\": 125.5,\n  \"networkTxMbps\": 245.8,\n  \"activeStreams\": 1,\n  \"streamBitrateMbps\": 50.0,\n  \"streamFps\": 60,\n  \"streamLatencyMs\": 25\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/host-agent/heartbeat",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "host-agent", "heartbeat"]
+            },
+            "description": "Host agent heartbeat endpoint (called by Windows host agents)"
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:3000",
+      "type": "string"
+    },
+    {
+      "key": "supabase_access_token",
+      "value": "your_supabase_jwt_token_here",
+      "type": "string"
+    },
+    {
+      "key": "game_id",
+      "value": "00000000-0000-0000-0000-000000000000",
+      "type": "string"
+    },
+    {
+      "key": "session_id",
+      "value": "00000000-0000-0000-0000-000000000000",
+      "type": "string"
+    },
+    {
+      "key": "steam_id",
+      "value": "76561198123456789",
+      "type": "string"
+    },
+    {
+      "key": "host_agent_secret",
+      "value": "your_host_agent_secret_here",
+      "type": "string"
+    },
+    {
+      "key": "stripe_signature",
+      "value": "t=...,v1=...",
+      "type": "string"
+    }
+  ]
+}
